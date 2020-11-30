@@ -23,7 +23,7 @@ export interface MsConfig {
 }
 
 export function loadConfig(): any {
-  const configJson = process.env.CONFIG
+  const configJson = process.env.CONFIG || "config.json"
 
   if (configJson) {
     console.log(`Using ${configJson}`)

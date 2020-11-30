@@ -4,6 +4,7 @@
     "outDir": "dist",
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "allowJs": true,
     "lib": [
       "es2017"
     ],

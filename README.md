@@ -3,6 +3,7 @@ Highly-opinionated framework for quick starting Microservices using Node.JS.
 ## Supports
 - Push-RPC for Websocket/HTML API
 - JSON-based config files
+- (Optional) Distributed logging
 - (Optional) MySQL connection
 - (Optional) Report common set of metrics to AWS CloudWatch
 - (Optional) Common "Ping" to check service availability.

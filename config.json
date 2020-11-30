@@ -1,0 +1,6 @@
+{
+  "serverId": "hello1",
+  "ports": {
+    "http": 8092
+  }
+}

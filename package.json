@@ -30,10 +30,13 @@
     "@push-rpc/http": "^1.2.0",
     "@push-rpc/websocket": "^1.2.0",
     "cloudwatch-buddy": "vasyas/cloudwatch-buddy",
+    "inflation": "^2.0.0",
     "interpolated-sql": "^1.0.7",
     "koa": "^2.13.0",
     "koa-mount": "^4.0.0",
     "koa-static": "^5.0.0",
+    "mysql2": "^2.2.5",
+    "raw-body": "^2.4.1",
     "ws": "^7.4.0"
   }
 }
