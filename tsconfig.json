@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "lib": [
+      "es2017"
+    ],
+    "declaration": true
+  },
+  "include": ["src/**/*.ts"]
+}
