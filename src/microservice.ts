@@ -7,14 +7,14 @@ import koaStatic from "koa-static"
 import * as UUID from "uuid-js"
 import * as WebSocket from "ws"
 import {initDatabase, transactional} from "./db"
-import {connectLoggingService, log} from "./logger"
+import {connectLoggingService, log, LogServices} from "./logger"
 import {initMonitoring, meterRequest, metric} from "./monitoring"
 import {bodyParser, websocketRouter} from "./serverUtils"
 import {createServiceContext} from "./serviceContext"
 import {loadConfig, MsConfig} from "./config"
 import {PingServiceImpl} from "./PingServiceImpl"
 
-export type MsProps<Itf, Impl extends Itf, Config extends MsConfig> = {
+export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
   name: string
   services?: Impl
   rpcServerOptions?: Partial<RpcServerOptions>
@@ -26,9 +26,16 @@ export type MsProps<Itf, Impl extends Itf, Config extends MsConfig> = {
   metricNamespace?: string
 }
 
-export async function startMicroService<Itf, Impl extends Itf, Config extends MsConfig>(
-  props: MsProps<Itf, Impl, Config>
-): Promise<{config: Config; services: Impl; koaApp: Koa}> {
+export type MsSetup<Config extends MsConfig, Impl> = {
+  config: Config
+  services: Impl
+  koaApp: Koa
+  logServices: LogServices
+}
+
+export async function startMicroService<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
+  props: MsProps<Config, Itf, Impl>
+): Promise<MsSetup<Config, Impl>> {
   console.log(`Starting server '${props.name}'`)
 
   const services = {
@@ -40,7 +47,8 @@ export async function startMicroService<Itf, Impl extends Itf, Config extends Ms
     info: (...params) => log.info(...params),
     error: (...params) => log.error(...params),
     warn: (...params) => log.warn(...params),
-    debug: () => {}, // don't need debug logs from push-rpc
+    debug: () => {
+    }, // don't need debug logs from push-rpc
     // debug: (...params) => log.debug(...params),
   })
 
@@ -51,7 +59,7 @@ export async function startMicroService<Itf, Impl extends Itf, Config extends Ms
 
   validateConfig(config)
 
-  await connectLoggingService(config.serverId, config.services?.log)
+  const logServices = await connectLoggingService(config.serverId, config.services?.log)
 
   if (config.db) {
     await initDatabase(config.db)
@@ -69,7 +77,7 @@ export async function startMicroService<Itf, Impl extends Itf, Config extends Ms
     `Server '${props.name}' started at http://localhost:${config.ports.http}/api/${props.name}, ws://localhost:${config.ports.http}/rpc/${props.name}${doc}`
   )
 
-  return {config, services, koaApp}
+  return {config, services, koaApp, logServices}
 }
 
 function publishApi(props, services, config) {

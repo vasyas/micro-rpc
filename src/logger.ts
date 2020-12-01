@@ -31,7 +31,7 @@ export let log: Logger = {
   debug: (...params) => console.log("[debug] " + params[0], ...params.slice(1)),
 }
 
-export async function connectLoggingService(nodeId, logServiceAddress) {
+export async function connectLoggingService(nodeId, logServiceAddress): Promise<LogServices> {
   if (!logServiceAddress) {
     log.warn("Log service address is undefined, skipping distributed logs")
     return
@@ -69,4 +69,6 @@ export async function connectLoggingService(nodeId, logServiceAddress) {
       },
     }
   )
+
+  return logServices
 }
