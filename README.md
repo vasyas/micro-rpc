@@ -15,7 +15,7 @@ Highly-opinionated framework for quick starting Microservices using Node.JS.
 yarn add micro-rpc
 ```
 
-config.json
+local-config.json
 ```
 {
   "serverId": "hello1",
