@@ -1,30 +1,18 @@
-import {composeMiddleware, createRpcServer, RpcServerOptions, setLogger} from "@push-rpc/core"
+import {composeMiddleware, createRpcServer, setLogger} from "@push-rpc/core"
 import {createKoaHttpMiddleware} from "@push-rpc/http"
 import {createWebsocketServer} from "@push-rpc/websocket"
 import Koa from "koa"
 import koaMount from "koa-mount"
-import koaStatic from "koa-static"
 import * as UUID from "uuid-js"
-import * as WebSocket from "ws"
+import {loadConfig, MsConfig} from "./config"
 import {initDatabase, transactional} from "./db"
+import {documentation} from "./documentApi"
 import {connectLoggingService, log, LogServices} from "./logger"
 import {initMonitoring, meterRequest, metric} from "./monitoring"
+import {PingServiceImpl} from "./PingServiceImpl"
+import {MsProps} from "./props"
 import {bodyParser, websocketRouter} from "./serverUtils"
 import {createServiceContext} from "./serviceContext"
-import {loadConfig, MsConfig} from "./config"
-import {PingServiceImpl} from "./PingServiceImpl"
-
-export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
-  name: string
-  services?: Impl
-  rpcServerOptions?: Partial<RpcServerOptions>
-  config?: Config
-  websocketServers?: {
-    [path: string]: WebSocket.Server
-  }
-  documentApi?: string
-  metricNamespace?: string
-}
 
 export type MsSetup<Config extends MsConfig, Impl> = {
   config: Config
@@ -117,7 +105,7 @@ function publishApi(props, services, config) {
   } = createKoaHttpMiddleware((ctx: Koa.Context) => getHttpRemoteId(ctx.request))
 
   if (props.documentApi) {
-    app.use(koaMount(`/api/${props.name}/docs/`, koaStatic(props.documentApi)))
+    app.use(koaMount(`/api/${props.name}/docs/`, documentation(props, config)))
   }
 
   app.use(koaMount(`/api/${props.name}`, koaMiddleware))
