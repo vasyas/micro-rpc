@@ -31,39 +31,39 @@
     "@nodelib/fs.scandir" "2.1.3"
     fastq "^1.6.0"
 
-"@push-rpc/core@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@push-rpc/core/-/core-1.2.0.tgz#1adf0c55d7b28e72459f61677f0076537d1608df"
-  integrity sha512-CPRmQRNSlWu1t0WQ6WE6OuGEXk8+TrNRAoRtnd+wjxaOVChmhsrSQ9QT4Fklwev8uUcdi2JSEdNHQh84JVN/8A==
+"@push-rpc/core@^1.2.6":
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@push-rpc/core/-/core-1.2.6.tgz#f2e44a253df8957e48fe0b43e3bf2ea90f4a1c4f"
+  integrity sha512-lE3s5adAVYdQ2f4m9+9vB+TnDDbsRPtI+tbY62ZHi3dTUh5Bj+IDIHrfR4XfyVP5ZEaz67DicFhhX4KywTYMbQ==
   dependencies:
     uuid-js "^0.7.5"
 
-"@push-rpc/http@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@push-rpc/http/-/http-1.2.0.tgz#c7fa81c6b83199f8b3de0447f9a7dc19dce024e4"
-  integrity sha512-47sLBMrZcgixGiRb8mfw6Fu533nQHAdtyQA6PMmhBrgZkJRpBhD4rbBl6mZzGnFCW9R6t2hKk7dCxoL2KfUzdg==
+"@push-rpc/http@^1.2.6":
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@push-rpc/http/-/http-1.2.6.tgz#e6609d0a96c90fad9c2d17dce08a6a66d3a23b0b"
+  integrity sha512-QSKS4FS2vqpUr/si0ITdGobaMTd5ThNCHIOz8fmAG899lWQqxGLE1QWXFLP9hHKXLRCPBKoAwQmN0IppHxJCkg==
   dependencies:
-    "@push-rpc/core" "^1.2.0"
+    "@push-rpc/core" "^1.2.6"
     uuid-js "^0.7.5"
 
-"@push-rpc/openapi@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@push-rpc/openapi/-/openapi-1.2.3.tgz#4c7ab006abe765a5a2d7dc9cd19e1b83adea1024"
-  integrity sha512-1EWZ8HiTGYfVNaTbU1ckq6Ikv0Ual1+aLAIUDP6KhwYEH0uvwE/qlgZqmegt2aqQ8ir3HLVen/V479vBQESDzQ==
+"@push-rpc/openapi@^1.2.6":
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@push-rpc/openapi/-/openapi-1.2.6.tgz#7f4c664914ee0b6ee5a87020e3ab21a224da897c"
+  integrity sha512-9w1oKAM6HqTwgXiLzzj69tQq9fYmCAcwFH3j421g5WbwxGNqAyujNyWAQt28JTc7ZNiPSSHln67x2K7irUSz2Q==
   dependencies:
-    "@push-rpc/core" "^1.2.0"
+    "@push-rpc/core" "^1.2.6"
     command-line-args "^5.0.2"
     command-line-usage "^5.0.5"
     js-yaml "^3.14.0"
     moment "^2.22.1"
     ts-morph "^9.0.0"
 
-"@push-rpc/websocket@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@push-rpc/websocket/-/websocket-1.2.0.tgz#a0aab674269edab4f7ce8fc12b60835632d38868"
-  integrity sha512-g4+KJgRFA2WT6gKfub+gkCTISgru6jKxVUEN0k8/g4p2LfG7pNHQiFXxLHaGYMGFqcB3l1SgoYPcO0KEiLclYQ==
+"@push-rpc/websocket@^1.2.6":
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@push-rpc/websocket/-/websocket-1.2.6.tgz#024e65a0e7411733c58367fdc519693a30b60d6d"
+  integrity sha512-DiiWhwmEngKNtWwuTCU2wdIhXiqSGdGXSG1Iutzobed6nneg9OuxP6FYYfoWKsJ6ZLhOHWA3abDlNQht/2AAEw==
   dependencies:
-    "@push-rpc/core" "^1.2.0"
+    "@push-rpc/core" "^1.2.6"
     ws "^7.2.0"
 
 "@ts-morph/common@~0.7.0":
