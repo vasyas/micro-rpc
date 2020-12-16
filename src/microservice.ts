@@ -10,7 +10,7 @@ import {documentation} from "./documentApi"
 import {connectLoggingService, log, LogServices} from "./logger"
 import {initMonitoring, meterRequest, metric} from "./monitoring"
 import {PingServiceImpl} from "./PingServiceImpl"
-import {MsProps} from "./props"
+import {defaultProps, MsProps} from "./props"
 import {bodyParser, websocketRouter} from "./serverUtils"
 import {createServiceContext} from "./serviceContext"
 
@@ -25,6 +25,11 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
   props: MsProps<Config, Itf, Impl>
 ): Promise<MsSetup<Config, Impl>> {
   console.log(`Starting server '${props.name}'`)
+
+  props = {
+    ...defaultProps,
+    ...props,
+  }
 
   const services = {
     ping: new PingServiceImpl(),
@@ -41,7 +46,7 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
   })
 
   const config: Config = {
-    ...(props.config || {}),
+    ...(props.config),
     ...(await loadConfig()),
   }
 
@@ -53,7 +58,7 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
     await initDatabase(config.db)
   }
 
-  initMonitoring(config.aws, config.serverId, props.metricNamespace || "Service")
+  initMonitoring(config.aws, config.serverId, props.metricNamespace)
 
   const koaApp = await publishApi(props, services, config)
 
@@ -92,7 +97,7 @@ function publishApi(props, services, config) {
         metric("rpc.subscriptions", subscriptions, "Count")
       },
     },
-    ...(config.rpcServerOptions || {}),
+    ...(config.rpcServerOptions),
   }
 
   // publish via HTTP
@@ -135,7 +140,7 @@ function publishApi(props, services, config) {
 
   websocketRouter(server, {
     [`/rpc/${props.name}`]: websocketServer,
-    ...(props.websocketServers || {}),
+    ...(props.websocketServers),
   })
 
   return app

@@ -4,9 +4,9 @@ import {MsConfig} from "./config"
 
 export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
   name: string
-  services?: Impl
+  services: Impl
   rpcServerOptions?: Partial<RpcServerOptions>
-  config?: Config
+  config?: Partial<Config>
   websocketServers?: {
     [path: string]: WebSocket.Server
   }
@@ -19,4 +19,11 @@ export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
     baseUrl?: string // where services would be deployed
   }
   metricNamespace?: string
+}
+
+export const defaultProps: Partial<MsProps<any, never, never>> = {
+  rpcServerOptions: {},
+  config: {},
+  websocketServers: {},
+  metricNamespace: "Service",
 }
