@@ -153,3 +153,8 @@ export interface DbConfig {
   database: string
   port?: number
 }
+
+export function stopDb() {
+  pool && pool.end()
+  pool = null
+}

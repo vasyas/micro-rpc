@@ -29,5 +29,5 @@ export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
 
   createKoaApp?(): Koa
   createServiceContext?(socket: Socket, req: Koa.Request): Promise<ServiceContext>
-  getHttpRemoteId(req: Koa.Request): string
+  getHttpRemoteId?(req: Koa.Request): string
 }

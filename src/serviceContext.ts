@@ -21,7 +21,11 @@ export async function createServiceContext(
     remoteId: UUID.create().toString(),
     // user: getUserFromToken(token),
     sql: exec,
-    async commit() {},
-    async rollback() {},
+    async commit() {
+      await exec`commit`.update()
+    },
+    async rollback() {
+      await exec`rollback`.update()
+    },
   }
 }

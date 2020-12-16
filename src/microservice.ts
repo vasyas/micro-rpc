@@ -150,7 +150,7 @@ function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
 
 function validateConfig(config: MsConfig) {
   if (!config.ports?.http) {
-    throw new Error("Required config property 'http.port' is missing")
+    throw new Error("Required config property 'ports.http' is missing")
   }
 
   if (!config.serverId) {
