@@ -1,4 +1,4 @@
-import {composeMiddleware, createRpcServer, setLogger} from "@push-rpc/core"
+import {composeMiddleware, createRpcServer, setLogger, Socket} from "@push-rpc/core"
 import {createKoaHttpMiddleware} from "@push-rpc/http"
 import {createWebsocketServer} from "@push-rpc/websocket"
 import Koa from "koa"
@@ -6,13 +6,13 @@ import koaMount from "koa-mount"
 import * as UUID from "uuid-js"
 import {loadConfig, MsConfig} from "./config"
 import {initDatabase, transactional} from "./db"
+import {getDefaultProps} from "./defaults"
 import {documentation} from "./documentApi"
 import {connectLoggingService, log, LogServices} from "./logger"
 import {initMonitoring, meterRequest, metric} from "./monitoring"
 import {PingServiceImpl} from "./PingServiceImpl"
-import {defaultProps, MsProps} from "./props"
-import {bodyParser, websocketRouter} from "./serverUtils"
-import {createServiceContext} from "./serviceContext"
+import {MsProps} from "./props"
+import {websocketRouter} from "./serverUtils"
 
 export type MsSetup<Config extends MsConfig, Impl> = {
   config: Config
@@ -27,7 +27,7 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
   console.log(`Starting server '${props.name}'`)
 
   props = {
-    ...defaultProps,
+    ...getDefaultProps(props),
     ...props,
   }
 
@@ -40,13 +40,13 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
     info: (...params) => log.info(...params),
     error: (...params) => log.error(...params),
     warn: (...params) => log.warn(...params),
-    debug: () => {
-    }, // don't need debug logs from push-rpc
+    debug: () => {},
+    // don't need debug logs from push-rpc
     // debug: (...params) => log.debug(...params),
   })
 
   const config: Config = {
-    ...(props.config),
+    ...props.config,
     ...(await loadConfig()),
   }
 
@@ -63,17 +63,21 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
   const koaApp = await publishApi(props, services, config)
 
   const doc = props.documentApi
-    ? `, docs at http://localhost:${config.ports.http}/api/${props.name}/docs/`
+    ? `, docs at http://localhost:${config.ports.http}${props.paths.doc}`
     : ""
 
   log.info(
-    `Server '${props.name}' started at http://localhost:${config.ports.http}/api/${props.name}, ws://localhost:${config.ports.http}/rpc/${props.name}${doc}`
+    `Server '${props.name}' started at http://localhost:${config.ports.http}${props.paths.http}, ws://localhost:${config.ports.http}${props.paths.ws}${doc}`
   )
 
   return {config, services, koaApp, logServices}
 }
 
-function publishApi(props, services, config) {
+function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
+  props: MsProps<Config, Itf, Impl>,
+  services: Impl,
+  config: Config
+) {
   const servicesMiddleware = [meterRequest("rpc.call")]
   if (config.db) servicesMiddleware.push(transactional)
 
@@ -86,10 +90,8 @@ function publishApi(props, services, config) {
       disconnected: (remoteId, connections) => {
         metric("rpc.connections", connections, "Count")
       },
-      messageIn: (remoteId, data) => {
-      },
-      messageOut: (remoteId, data) => {
-      },
+      messageIn: (remoteId, data) => {},
+      messageOut: (remoteId, data) => {},
       subscribed: (subscriptions) => {
         metric("rpc.subscriptions", subscriptions, "Count")
       },
@@ -97,23 +99,23 @@ function publishApi(props, services, config) {
         metric("rpc.subscriptions", subscriptions, "Count")
       },
     },
-    ...(config.rpcServerOptions),
+    ...props.rpcServerOptions,
   }
 
   // publish via HTTP
-  const app = configureKoaApp()
+  const app = props.createKoaApp()
 
   const {
     onError,
     onConnection,
     middleware: koaMiddleware,
-  } = createKoaHttpMiddleware((ctx: Koa.Context) => getHttpRemoteId(ctx.request))
+  } = createKoaHttpMiddleware((ctx: Koa.Context) => props.getHttpRemoteId(ctx.request))
 
   if (props.documentApi) {
-    app.use(koaMount(`/api/${props.name}/docs/`, documentation(props, config)))
+    app.use(koaMount(props.paths.doc, documentation(props, config)))
   }
 
-  app.use(koaMount(`/api/${props.name}`, koaMiddleware))
+  app.use(koaMount(props.paths.http, koaMiddleware))
 
   const httpSocketServer = {
     onError,
@@ -125,7 +127,7 @@ function publishApi(props, services, config) {
 
   createRpcServer(services, httpSocketServer, {
     ...rpcOptions,
-    createConnectionContext: createHttpConnectionContext,
+    createConnectionContext: (socket, req) => createHttpConnectionContext(socket, req, props),
     pingSendTimeout: null,
   })
 
@@ -135,12 +137,12 @@ function publishApi(props, services, config) {
   const {wss: websocketServer, ...wsSocketServer} = createWebsocketServer()
   createRpcServer(services, wsSocketServer, {
     ...rpcOptions,
-    createConnectionContext: createWebsocketConnectionContext,
+    createConnectionContext: (socket, req) => createWebsocketConnectionContext(socket, req, props),
   })
 
   websocketRouter(server, {
-    [`/rpc/${props.name}`]: websocketServer,
-    ...(props.websocketServers),
+    [props.paths.ws]: websocketServer,
+    ...props.websocketServers,
   })
 
   return app
@@ -156,43 +158,24 @@ function validateConfig(config: MsConfig) {
   }
 }
 
-function configureKoaApp() {
-  const app = new Koa()
-  app.proxy = true
-  app.use(bodyParser)
-
-  app.use(async (ctx, next) => {
-    try {
-      return await next()
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "" + e
-
-      ctx.status = 500
-      ctx.body = msg
-
-      log.error(`While ${ctx.request.path}:`, e)
-    }
-  })
-
-  return app
-}
-
-function getHttpRemoteId(ctx: Koa.Request) {
-  let token = ctx.headers["authorization"]
-  token = token ? token.replace("Bearer ", "") : null
-  return token || "anon"
-}
-
-async function createHttpConnectionContext(socket, req) {
+async function createHttpConnectionContext<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
+  socket: Socket,
+  req: Koa.Request,
+  props: MsProps<Config, Itf, Impl>
+) {
   return {
-    ...(await createServiceContext(socket, req)),
-    remoteId: getHttpRemoteId(req),
+    ...(await props.createServiceContext(socket, req)),
+    remoteId: props.getHttpRemoteId(req),
   }
 }
 
-async function createWebsocketConnectionContext(socket, req) {
+async function createWebsocketConnectionContext<
+  Config extends MsConfig,
+  Itf,
+  Impl extends Itf = Itf
+>(socket: Socket, req: Koa.Request, props: MsProps<Config, Itf, Impl>) {
   return {
-    ...(await createServiceContext(socket, req)),
+    ...(await props.createServiceContext(socket, req)),
     remoteId: UUID.create().toString(),
   }
 }

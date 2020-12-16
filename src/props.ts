@@ -1,6 +1,8 @@
-import {RpcServerOptions} from "@push-rpc/core"
+import Koa from "koa"
+import {RpcServerOptions, Socket} from "@push-rpc/core"
 import WebSocket from "ws"
 import {MsConfig} from "./config"
+import {ServiceContext} from "./serviceContext"
 
 export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
   name: string
@@ -18,12 +20,14 @@ export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
     entryType: string // entry type, should be exported from entry file
     baseUrl?: string // where services would be deployed
   }
+  paths?: {
+    doc: string
+    http: string
+    ws: string
+  }
   metricNamespace?: string
-}
 
-export const defaultProps: Partial<MsProps<any, never, never>> = {
-  rpcServerOptions: {},
-  config: {},
-  websocketServers: {},
-  metricNamespace: "Service",
+  createKoaApp?(): Koa
+  createServiceContext?(socket: Socket, req: Koa.Request): Promise<ServiceContext>
+  getHttpRemoteId(req: Koa.Request): string
 }

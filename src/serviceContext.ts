@@ -1,4 +1,4 @@
-import {RpcConnectionContext} from "@push-rpc/core"
+import {RpcConnectionContext, Socket} from "@push-rpc/core"
 import {SqlBuilder} from "interpolated-sql"
 import * as Koa from "koa"
 import * as UUID from "uuid-js"
@@ -11,7 +11,10 @@ export interface ServiceContext extends RpcConnectionContext {
   rollback(): Promise<void>
 }
 
-export async function createServiceContext(socket, req: Koa.Request): Promise<ServiceContext> {
+export async function createServiceContext(
+  socket: Socket,
+  req: Koa.Request
+): Promise<ServiceContext> {
   const token = req.headers["sec-websocket-protocol"]
 
   return {

@@ -6,10 +6,12 @@ let openApi
 
 try {
   openApi = require("@push-rpc/openapi")
-} catch (e) {
-}
+} catch (e) {}
 
-export function documentation(props: MsProps<never, never, never>, config: MsConfig): Application {
+export function documentation<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
+  props: MsProps<Config, Itf, Impl>,
+  config: Config
+): Application {
   const app = new Application()
 
   app.use(async (ctx, next) => {
@@ -29,7 +31,10 @@ export function documentation(props: MsProps<never, never, never>, config: MsCon
   return app
 }
 
-async function createApiYaml(props: MsProps<never, never, never>, config: MsConfig): Promise<string> {
+async function createApiYaml<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
+  props: MsProps<Config, Itf, Impl>,
+  config: Config
+): Promise<string> {
   if (!openApi) {
     throw new Error("Please install @push-rpc/openapi")
   }
@@ -40,12 +45,14 @@ async function createApiYaml(props: MsProps<never, never, never>, config: MsConf
     openapi: "3.0.0",
     info: {
       title: `${props.name} service`,
-      version: "1.0.0"
+      version: "1.0.0",
     },
-    servers: [{
-      url: `${baseUrl}/api/${props.name}`,
-      description: "Server"
-    }]
+    servers: [
+      {
+        url: `${baseUrl}/api/${props.name}`,
+        description: "Server",
+      },
+    ],
   }
 
   return openApi.generateYml({
@@ -55,7 +62,7 @@ async function createApiYaml(props: MsProps<never, never, never>, config: MsConf
   })
 }
 
-const index = serverName => `
+const index = (serverName) => `
 <!DOCTYPE html>
 <html>
   <head>
