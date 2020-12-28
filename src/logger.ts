@@ -9,7 +9,7 @@ export enum LogSeverity {
 }
 
 export interface LogService {
-  log(req: {nodeId: string, severity: LogSeverity, message: string, details?: any})
+  log(req: {nodeId: string; severity: LogSeverity; message: string; details?: any})
 }
 
 export interface LogServices {
@@ -33,7 +33,6 @@ export let log: Logger = {
 
 export async function connectLoggingService(nodeId, logServiceAddress): Promise<LogServices> {
   if (!logServiceAddress) {
-    log.warn("Log service address is undefined, skipping distributed logs")
     return
   }
 
