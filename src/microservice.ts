@@ -105,7 +105,7 @@ function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
   }
 
   // publish via HTTP
-  const app = props.createKoaApp()
+  const app = props.createKoaApp(config)
 
   const {
     onError,

@@ -24,6 +24,10 @@ export async function initDatabase(config: DbConfig, trace = false) {
   impl.on("enqueue", sendPoolMetric)
 }
 
+export async function closeDatabase() {
+  await pool.end()
+}
+
 // after this timeout transaction will be returned back to the pool
 const TRANSACTION_TIMEOUT = 15 * 1000
 
@@ -95,23 +99,24 @@ export function execute(parts, ...params) {
   return exec(parts, ...params)
 }
 
+function provider(name) {
+  return async function (...args) {
+    const connection = await getConnection()
+
+    try {
+      return await connection[name](...args)
+    } finally {
+      releaseConnection(connection)
+    }
+  }
+}
+
 export function exec(parts, ...params) {
   const singleExecuteConnectionSupplier = async () => {
-    let connection = await getConnection()
-    ;["execute", "query"].forEach((method) => {
-      const impl = connection[method]
-
-      connection[method] = async (...args) => {
-        try {
-          const r = await impl.call(connection, ...args)
-          return r
-        } finally {
-          releaseConnection(connection)
-        }
-      }
-    })
-
-    return connection
+    return {
+      execute: provider("execute"),
+      query: provider("query"),
+    }
   }
 
   return new Sql(parts, params, singleExecuteConnectionSupplier)

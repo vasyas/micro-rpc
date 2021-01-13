@@ -29,7 +29,7 @@ export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
   }
   metricNamespace?: string
 
-  createKoaApp?(): Koa
+  createKoaApp?(config: Config): Koa
   createServiceContext?(socket: Socket, req: Koa.Request): Promise<Omit<ServiceContext, "remoteId">>
   getHttpRemoteId?(req: Koa.Request): string
 }
