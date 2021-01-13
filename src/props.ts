@@ -4,14 +4,16 @@ import WebSocket from "ws"
 import {MsConfig} from "./config"
 import {ServiceContext} from "./serviceContext"
 
+type WebSocketRoutes = {
+  [path: string]: WebSocket.Server
+}
+
 export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
   name: string
   services: Impl
   rpcServerOptions?: Partial<RpcServerOptions>
   config?: Partial<Config>
-  websocketServers?: {
-    [path: string]: WebSocket.Server
-  }
+  websocketServers?: WebSocketRoutes | ((rpc: WebSocket.Server) => WebSocketRoutes)
   documentApi?: {
     baseDir?: string // default to .
     tsConfig: string // path to tsconfig.json
@@ -28,6 +30,6 @@ export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
   metricNamespace?: string
 
   createKoaApp?(): Koa
-  createServiceContext?(socket: Socket, req: Koa.Request): Promise<ServiceContext>
+  createServiceContext?(socket: Socket, req: Koa.Request): Promise<Omit<ServiceContext, "remoteId">>
   getHttpRemoteId?(req: Koa.Request): string
 }

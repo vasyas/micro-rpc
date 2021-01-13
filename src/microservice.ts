@@ -1,4 +1,4 @@
-import {composeMiddleware, createRpcServer, setLogger, Socket} from "@push-rpc/core"
+import {composeMiddleware, createRpcServer, Middleware, setLogger, Socket} from "@push-rpc/core"
 import {createKoaHttpMiddleware} from "@push-rpc/http"
 import {createWebsocketServer} from "@push-rpc/websocket"
 import Koa from "koa"
@@ -78,10 +78,13 @@ function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
   services: Impl,
   config: Config
 ) {
-  const servicesMiddleware = [meterRequest("rpc.call")]
+  const servicesMiddleware: Middleware[] = [meterRequest("rpc.call")]
   if (config.db) servicesMiddleware.push(transactional)
+  if (props.rpcServerOptions.localMiddleware)
+    servicesMiddleware.push(props.rpcServerOptions.localMiddleware)
 
   const rpcOptions = {
+    ...props.rpcServerOptions,
     localMiddleware: composeMiddleware(...servicesMiddleware),
     listeners: {
       connected: (remoteId, connections) => {
@@ -99,7 +102,6 @@ function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
         metric("rpc.subscriptions", subscriptions, "Count")
       },
     },
-    ...props.rpcServerOptions,
   }
 
   // publish via HTTP
@@ -142,7 +144,9 @@ function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
 
   websocketRouter(server, {
     [props.paths.ws]: websocketServer,
-    ...props.websocketServers,
+    ...(typeof props.websocketServers == "function"
+      ? props.websocketServers(websocketServer)
+      : props.websocketServers),
   })
 
   return app
