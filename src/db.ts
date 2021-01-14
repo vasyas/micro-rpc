@@ -37,8 +37,43 @@ export async function transactional(ctx, next, params = undefined) {
 
   let transactionTimer
 
+  function closeConnection() {
+    if (transactionTimer) {
+      clearTimeout(transactionTimer)
+    }
+
+    releaseConnection(connection)
+    connection = null
+  }
+
+  async function openConnection() {
+    if (connection) {
+      closeConnection()
+    }
+
+    connection = await getConnection()
+
+    transactionTimer = setTimeout(async () => {
+      if (connection) {
+        log.error(`Transaction timed out`, ctx)
+
+        if (inTransaction) {
+          try {
+            await ctx.rollback()
+          } catch (e) {
+            log.error(`Unable to rollback timed out transaction`)
+          }
+        } else {
+          closeConnection()
+        }
+      }
+    }, TRANSACTION_TIMEOUT)
+  }
+
   try {
     ctx.begin = async () => {
+      await openConnection()
+
       await connection.query("START TRANSACTION")
       inTransaction = true
     }
@@ -46,37 +81,25 @@ export async function transactional(ctx, next, params = undefined) {
     ctx.commit = async () => {
       await connection.query("COMMIT")
       inTransaction = false
+
+      closeConnection()
     }
 
     ctx.rollback = async () => {
       await connection.query("ROLLBACK")
       inTransaction = false
+
+      closeConnection()
     }
 
     ctx.sql = (parts, ...params) => {
       return new Sql(parts, params, async () => {
         if (!connection) {
-          connection = await getConnection()
-
           if (ctx.transactional) {
             await ctx.begin()
+          } else {
+            await openConnection()
           }
-
-          transactionTimer = setTimeout(async () => {
-            if (connection) {
-              log.error(`Transaction timed out`, ctx)
-
-              if (inTransaction) {
-                try {
-                  await ctx.rollback()
-                } catch (e) {
-                  log.error(`Unable to rollback timed out transaction`)
-                }
-              }
-
-              releaseConnection(connection)
-            }
-          }, TRANSACTION_TIMEOUT)
         }
 
         return connection
@@ -98,11 +121,7 @@ export async function transactional(ctx, next, params = undefined) {
     throw e
   } finally {
     if (connection) {
-      if (transactionTimer) {
-        clearTimeout(transactionTimer)
-      }
-
-      releaseConnection(connection)
+      closeConnection()
     }
   }
 }
