@@ -38,24 +38,40 @@ export async function transactional(ctx, next, params = undefined) {
   let transactionTimer
 
   try {
+    ctx.begin = async () => {
+      await connection.query("START TRANSACTION")
+      inTransaction = true
+    }
+
+    ctx.commit = async () => {
+      await connection.query("COMMIT")
+      inTransaction = false
+    }
+
+    ctx.rollback = async () => {
+      await connection.query("ROLLBACK")
+      inTransaction = false
+    }
+
     ctx.sql = (parts, ...params) => {
       return new Sql(parts, params, async () => {
         if (!connection) {
           connection = await getConnection()
 
           if (ctx.transactional) {
-            await connection.query("START TRANSACTION")
-            inTransaction = true
+            await ctx.begin()
           }
 
-          transactionTimer = setTimeout(() => {
+          transactionTimer = setTimeout(async () => {
             if (connection) {
               log.error(`Transaction timed out`, ctx)
 
-              try {
-                connection.query("ROLLBACK")
-              } catch (e) {
-                log.error(`Unable to rollback timed out transaction`)
+              if (inTransaction) {
+                try {
+                  await ctx.rollback()
+                } catch (e) {
+                  log.error(`Unable to rollback timed out transaction`)
+                }
               }
 
               releaseConnection(connection)
@@ -69,14 +85,14 @@ export async function transactional(ctx, next, params = undefined) {
 
     const r = await next(params)
 
-    if (connection && inTransaction) {
-      await connection.query("COMMIT")
+    if (inTransaction) {
+      await ctx.commit()
     }
 
     return r
   } catch (e) {
-    if (connection && inTransaction) {
-      await connection.query("ROLLBACK")
+    if (inTransaction) {
+      await ctx.rollback()
     }
 
     throw e
