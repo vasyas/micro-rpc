@@ -10,10 +10,10 @@ type WebSocketRoutes = {
 
 export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
   name: string
-  services: Impl
+  services?: Impl
   rpcServerOptions?: Partial<RpcServerOptions>
   config?: Partial<Config>
-  websocketServers?: WebSocketRoutes | ((rpc: WebSocket.Server) => WebSocketRoutes)
+  websocketServers?: WebSocketRoutes | ((rpc: WebSocket.Server) => Promise<WebSocketRoutes>)
   documentApi?: {
     baseDir?: string // default to .
     tsConfig: string // path to tsconfig.json

@@ -1,5 +1,4 @@
-import {createRpcClient} from "@push-rpc/core"
-import {createNodeWebsocket} from "@push-rpc/websocket"
+import {JSONCodec, NatsConnection} from "nats"
 
 export enum LogSeverity {
   info = "info",
@@ -8,13 +7,9 @@ export enum LogSeverity {
   debug = "debug",
 }
 
-export interface LogService {
-  log(req: {nodeId: string; severity: LogSeverity; message: string; details?: any})
-}
+export type GeneralLog = {nodeId: string; severity: LogSeverity; message: string; details?: any}
 
-export interface LogServices {
-  log: LogService
-}
+export const SUBJECT_GENERAL_LOG = "log.general"
 
 export interface Logger {
   info(message: string, details?: any): void
@@ -31,43 +26,16 @@ export let log: Logger = {
   debug: (...params) => console.log("[debug] " + params[0], ...params.slice(1)),
 }
 
-export async function connectLoggingService(nodeId, logServiceAddress): Promise<LogServices> {
-  if (!logServiceAddress) {
-    return
-  }
+export async function connectLoggingService(nodeId, natsConnection: NatsConnection): Promise<void> {
+  const codec = JSONCodec()
 
-  const {remote: logServices} = await createRpcClient<LogServices>(
-    1,
-    () => createNodeWebsocket(logServiceAddress),
-    {
-      reconnect: true,
-      listeners: {
-        connected() {
-          log.debug(`Connected to log service at ${logServiceAddress}`)
-
-          Object.assign(log, {
-            info(message, details) {
-              logServices.log.log({nodeId, severity: LogSeverity.info, message, details})
-            },
-            error(message, details) {
-              logServices.log.log({nodeId, severity: LogSeverity.error, message, details})
-            },
-            warn(message, details) {
-              logServices.log.log({nodeId, severity: LogSeverity.warn, message, details})
-            },
-            debug(message, details) {
-              logServices.log.log({nodeId, severity: LogSeverity.debug, message, details})
-            },
-          })
-        },
-        disconnected: () => {},
-        subscribed: () => {},
-        unsubscribed: () => {},
-        messageOut: () => {},
-        messageIn: () => {},
-      },
+  log.debug(`Using distributed logs`)
+  ;[LogSeverity.info, LogSeverity.error, LogSeverity.warn, LogSeverity.debug].forEach(
+    (severity) => {
+      log[severity] = (message, details) => {
+        const body: GeneralLog = {nodeId, severity, message, details}
+        natsConnection.publish(SUBJECT_GENERAL_LOG, codec.encode(body))
+      }
     }
   )
-
-  return logServices
 }

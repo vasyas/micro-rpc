@@ -3,22 +3,24 @@ import {createKoaHttpMiddleware} from "@push-rpc/http"
 import {createWebsocketServer} from "@push-rpc/websocket"
 import Koa from "koa"
 import koaMount from "koa-mount"
+import {connect, NatsConnection} from "nats"
 import * as UUID from "uuid-js"
 import {loadConfig, MsConfig} from "./config"
 import {initDatabase, transactional} from "./db"
 import {getDefaultProps} from "./defaults"
 import {documentation} from "./documentApi"
-import {connectLoggingService, log, LogServices} from "./logger"
+import {connectLoggingService, log} from "./logger"
 import {initMonitoring, meterRequest, metric} from "./monitoring"
 import {PingServiceImpl} from "./PingServiceImpl"
 import {MsProps} from "./props"
 import {websocketRouter} from "./serverUtils"
+import {drainWorkerQueues} from "./dataSubjects"
 
 export type MsSetup<Config extends MsConfig, Impl> = {
   config: Config
-  services: Impl
-  koaApp: Koa
-  logServices: LogServices
+  natsConnection: NatsConnection
+  services?: Impl
+  koaApp?: Koa
 }
 
 export async function startMicroService<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
@@ -29,11 +31,6 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
   props = {
     ...getDefaultProps(props),
     ...props,
-  }
-
-  const services = {
-    ping: new PingServiceImpl(),
-    ...props.services,
   }
 
   setLogger({
@@ -50,9 +47,21 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
     ...(await loadConfig()),
   }
 
-  validateConfig(config)
+  validateConfig(props, config)
 
-  const logServices = await connectLoggingService(config.serverId, config.services?.log)
+  const natsConnection = await connect(config.nats)
+  await connectLoggingService(config.serverId, natsConnection)
+
+  process.on("SIGINT", async () => {
+    log.info("Got SIGINT, doing graceful shutdown")
+
+    log.info("Shutdown: drain message queue")
+    await natsConnection.drain()
+
+    await drainWorkerQueues()
+
+    process.exit(0)
+  })
 
   if (config.db) {
     await initDatabase(config.db)
@@ -60,20 +69,31 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
 
   initMonitoring(config.aws, config.serverId, props.metricNamespace)
 
-  const koaApp = await publishApi(props, services, config)
+  if (props.services) {
+    const services = {
+      ping: new PingServiceImpl(),
+      ...props.services,
+    }
 
-  const doc = props.documentApi
-    ? `, docs at http://localhost:${config.ports.http}${props.paths.doc}`
-    : ""
+    const koaApp = await publishApi(props, services, config)
 
-  log.info(
-    `Server '${props.name}' started at http://localhost:${config.ports.http}${props.paths.http}, ws://localhost:${config.ports.http}${props.paths.ws}${doc}`
-  )
+    const doc = props.documentApi
+      ? `, docs at http://localhost:${config.ports.http}${props.paths.doc}`
+      : ""
 
-  return {config, services, koaApp, logServices}
+    log.info(
+      `Server '${props.name}' started at http://localhost:${config.ports.http}${props.paths.http}, ws://localhost:${config.ports.http}${props.paths.ws}${doc}`
+    )
+
+    return {config, services, koaApp, natsConnection}
+  } else {
+    log.info(`Server '${props.name}' started`)
+
+    return {config, natsConnection}
+  }
 }
 
-function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
+async function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
   props: MsProps<Config, Itf, Impl>,
   services: Impl,
   config: Config
@@ -145,16 +165,16 @@ function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
   websocketRouter(server, {
     [props.paths.ws]: websocketServer,
     ...(typeof props.websocketServers == "function"
-      ? props.websocketServers(websocketServer)
+      ? await props.websocketServers(websocketServer)
       : props.websocketServers),
   })
 
   return app
 }
 
-function validateConfig(config: MsConfig) {
-  if (!config.ports?.http) {
-    throw new Error("Required config property 'ports.http' is missing")
+function validateConfig(props, config: MsConfig) {
+  if (!!props.services && !config.ports?.http) {
+    throw new Error("Config property 'ports.http' is required to publish Push-RPC services")
   }
 
   if (!config.serverId) {

@@ -1,8 +1,9 @@
 import * as fs from "fs"
+import {ConnectionOptions, NatsConnection} from "nats"
 
 export interface MsConfig {
   serverId: string
-  services?: Record<string, string>
+  nats?: ConnectionOptions
   ports: {
     http: number
   } & Record<string, number>
