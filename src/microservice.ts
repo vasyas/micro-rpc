@@ -14,7 +14,8 @@ import {initMonitoring, meterRequest, metric} from "./monitoring"
 import {PingServiceImpl} from "./PingServiceImpl"
 import {MsProps} from "./props"
 import {websocketRouter} from "./serverUtils"
-import {drainWorkerQueues} from "./dataSubjects"
+import {drainWorkerQueues} from "typed-subjects"
+import loglevel from "loglevel"
 
 export type MsSetup<Config extends MsConfig, Impl> = {
   config: Config
@@ -41,6 +42,8 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
     // don't need debug logs from push-rpc
     // debug: (...params) => log.debug(...params),
   })
+
+  configureLoglevel()
 
   const config: Config = {
     ...props.config,
@@ -202,4 +205,14 @@ async function createWebsocketConnectionContext<
     ...(await props.createServiceContext(socket, req)),
     remoteId: UUID.create().toString(),
   }
+}
+
+function configureLoglevel() {
+  loglevel.methodFactory = (methodName, logLevel, loggerName) => {
+    return (...args) => {
+      log[methodName](...args)
+    }
+  }
+
+  loglevel.enableAll()
 }

@@ -856,6 +856,11 @@ lodash.padend@^4.6.1:
   resolved "https://registry.yarnpkg.com/lodash.padend/-/lodash.padend-4.6.1.tgz#53ccba047d06e158d311f45da625f4e49e6f166e"
   integrity sha1-U8y6BH0G4VjTEfRdpiX05J5vFm4=
 
+loglevel@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.7.1.tgz#005fde2f5e6e47068f935ff28573e125ef72f197"
+  integrity sha512-Hesni4s5UkWkwCGJMQGAh71PaLUmKFM60dHvq0zi/vDhhrzuk+4GgNbTXJ12YYQJn6ZKBDNIjYcuQGKudvqrIw==
+
 long@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/long/-/long-4.0.0.tgz#9a7b71cfb7d361a194ea555241c92f7468d5bf28"
@@ -1225,6 +1230,15 @@ type-is@^1.6.16:
   dependencies:
     media-typer "0.3.0"
     mime-types "~2.1.24"
+
+typed-subjects@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/typed-subjects/-/typed-subjects-1.0.0.tgz#9a5b145a9693963a4db2c3e5bae5312fd3235b1e"
+  integrity sha512-pIp8S6qzQG3m4oe5r83doWnsrGZ/3l2es+Ie/P31yvj1bMqXkfRcrUFgL8GAr0FGidv/ASuBKdHTDN9wKc414w==
+  dependencies:
+    loglevel "^1.7.1"
+    nats "^2.0.0-215"
+    p-queue "^6.6.2"
 
 typescript@^4.1.2, typescript@~4.1.2:
   version "4.1.2"
