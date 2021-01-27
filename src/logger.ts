@@ -33,7 +33,12 @@ export async function connectLoggingService(nodeId, natsConnection: NatsConnecti
   ;[LogSeverity.info, LogSeverity.error, LogSeverity.warn, LogSeverity.debug].forEach(
     (severity) => {
       log[severity] = (message, details) => {
+        if (details instanceof Error) {
+          details = details.stack
+        }
+
         const body: GeneralLog = {nodeId, severity, message, details}
+
         natsConnection.publish(SUBJECT_GENERAL_LOG, codec.encode(body))
       }
     }
