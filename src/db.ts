@@ -79,17 +79,21 @@ export async function transactional(ctx, next, params = undefined) {
     }
 
     ctx.commit = async () => {
-      await connection.query("COMMIT")
-      inTransaction = false
+      if (connection) {
+        await connection.query("COMMIT")
+        inTransaction = false
 
-      closeConnection()
+        closeConnection()
+      }
     }
 
     ctx.rollback = async () => {
-      await connection.query("ROLLBACK")
-      inTransaction = false
+      if (connection) {
+        await connection.query("ROLLBACK")
+        inTransaction = false
 
-      closeConnection()
+        closeConnection()
+      }
     }
 
     ctx.sql = (parts, ...params) => {
