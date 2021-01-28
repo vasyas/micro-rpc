@@ -1231,12 +1231,11 @@ type-is@^1.6.16:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typed-subjects@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/typed-subjects/-/typed-subjects-1.0.1.tgz#a06d3f35166648d1df2472f110981d4967c8a35c"
-  integrity sha512-TdZ/DgAGL5hJkC8ucBRg3S/EQurPMT7T1Ic5T/JU+BufZbSwVtvML9UdJkzHTrt6Qxs8Q+XEptKkihNqPlkwsw==
+typed-subjects@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/typed-subjects/-/typed-subjects-1.0.2.tgz#7f8eb68eea8654d8d1b07bd8413721b1b4c39fa1"
+  integrity sha512-NTuJCtL11Sp4FZv/nw8FRDtIfgm3LfobZSfMJjU5eaDOjiz8W+5XQrkvfD2B/eTBdOTrYaSVaMdivlldkrVxMw==
   dependencies:
-    loglevel "^1.7.1"
     nats "^2.0.0-215"
     p-queue "^6.6.2"
 
