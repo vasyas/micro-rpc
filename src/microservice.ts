@@ -3,7 +3,9 @@ import {createKoaHttpMiddleware} from "@push-rpc/http"
 import {createWebsocketServer} from "@push-rpc/websocket"
 import Koa from "koa"
 import koaMount from "koa-mount"
+import loglevel from "loglevel"
 import {connect, NatsConnection} from "nats"
+import {drainWorkerQueues, setWorkerQueueListeners} from "typed-subjects"
 import * as UUID from "uuid-js"
 import {loadConfig, MsConfig} from "./config"
 import {initDatabase, transactional} from "./db"
@@ -14,8 +16,6 @@ import {initMonitoring, meterRequest, metric} from "./monitoring"
 import {PingServiceImpl} from "./PingServiceImpl"
 import {MsProps} from "./props"
 import {websocketRouter} from "./serverUtils"
-import {drainWorkerQueues} from "typed-subjects"
-import loglevel from "loglevel"
 
 export type MsSetup<Config extends MsConfig, Impl> = {
   config: Config
@@ -54,6 +54,11 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
 
   const natsConnection = await connect(config.nats)
   await connectLoggingService(config.serverId, natsConnection)
+
+  setWorkerQueueListeners(
+    (size: number) => metric("workerQueues", size, "Count"),
+    (queueName, queueSize) => metric("workerQueue.size", queueSize)
+  )
 
   process.on("SIGINT", async () => {
     log.info("Got SIGINT, doing graceful shutdown")
