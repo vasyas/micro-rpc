@@ -185,6 +185,18 @@ function validateConfig(props, config: MsConfig) {
     throw new Error("Config property 'ports.http' is required to publish Push-RPC services")
   }
 
+  ;[
+    "documentApi",
+    "websocketServers",
+    "createKoaApp",
+    "createServiceContext",
+    "getHttpRemoteId",
+  ].forEach((prop) => {
+    if (!props.services && props[prop]) {
+      throw new Error(prop + "property can only be specified when publishing services")
+    }
+  })
+
   if (!config.serverId) {
     throw new Error("Required config property 'serverId' is missing")
   }
