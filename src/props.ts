@@ -11,7 +11,9 @@ type WebSocketRoutes = {
 export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
   name: string
   services?: Impl
-  rpcServerOptions?: Partial<RpcServerOptions>
+  rpcServerOptions?:
+    | Partial<RpcServerOptions>
+    | ((config: Config) => Promise<Partial<RpcServerOptions>>)
   config?: Partial<Config>
   websocketServers?: WebSocketRoutes | ((rpc: WebSocket.Server) => Promise<WebSocketRoutes>)
   documentApi?: {

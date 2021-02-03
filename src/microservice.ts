@@ -1,4 +1,11 @@
-import {composeMiddleware, createRpcServer, Middleware, setLogger, Socket} from "@push-rpc/core"
+import {
+  composeMiddleware,
+  createRpcServer,
+  Middleware,
+  RpcServerOptions,
+  setLogger,
+  Socket,
+} from "@push-rpc/core"
 import {createKoaHttpMiddleware} from "@push-rpc/http"
 import {createWebsocketServer} from "@push-rpc/websocket"
 import Koa from "koa"
@@ -25,13 +32,13 @@ export type MsSetup<Config extends MsConfig, Impl> = {
 }
 
 export async function startMicroService<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
-  props: MsProps<Config, Itf, Impl>
+  providedProps: MsProps<Config, Itf, Impl>
 ): Promise<MsSetup<Config, Impl>> {
-  console.log(`Starting server '${props.name}'`)
+  console.log(`Starting server '${providedProps.name}'`)
 
-  props = {
-    ...getDefaultProps(props),
-    ...props,
+  const props = {
+    ...getDefaultProps(providedProps),
+    ...providedProps,
   }
 
   setLogger({
@@ -50,10 +57,12 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
     ...(await loadConfig()),
   }
 
-  validateConfig(props, config)
+  validateConfig(providedProps, config)
 
   const natsConnection = await connect(config.nats)
   await connectLoggingService(config.serverId, natsConnection)
+
+  log.info("Connected to NATS, Client ID " + natsConnection.info?.client_id)
 
   setWorkerQueueListeners(
     (size: number) => metric("workerQueues", size, "Count"),
@@ -106,13 +115,17 @@ async function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
   services: Impl,
   config: Config
 ) {
+  const rpcServerOptions: Partial<RpcServerOptions> =
+    typeof props.rpcServerOptions == "function"
+      ? await props.rpcServerOptions(config)
+      : props.rpcServerOptions
+
   const servicesMiddleware: Middleware[] = [meterRequest("rpc.call")]
   if (config.db) servicesMiddleware.push(transactional)
-  if (props.rpcServerOptions.localMiddleware)
-    servicesMiddleware.push(props.rpcServerOptions.localMiddleware)
+  if (rpcServerOptions.localMiddleware) servicesMiddleware.push(rpcServerOptions.localMiddleware)
 
   const rpcOptions = {
-    ...props.rpcServerOptions,
+    ...rpcServerOptions,
     localMiddleware: composeMiddleware(...servicesMiddleware),
     listeners: {
       connected: (remoteId, connections) => {
