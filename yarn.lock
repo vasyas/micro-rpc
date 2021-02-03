@@ -368,6 +368,11 @@ cache-content-type@^1.0.0:
     mime-types "^2.1.18"
     ylru "^1.2.0"
 
+callable-instance@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/callable-instance/-/callable-instance-2.0.0.tgz#0fada1c68b8b89117093c7dd4e0edde6323acba2"
+  integrity sha512-wOBp/J1CRZLsbFxG1alxefJjoG1BW/nocXkUanAe2+leiD/+cVr00j8twSZoDiRy03o5vibq9pbrZc+EDjjUTw==
+
 chalk@^2.4.1:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
@@ -1231,11 +1236,13 @@ type-is@^1.6.16:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typed-subjects@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/typed-subjects/-/typed-subjects-1.0.2.tgz#7f8eb68eea8654d8d1b07bd8413721b1b4c39fa1"
-  integrity sha512-NTuJCtL11Sp4FZv/nw8FRDtIfgm3LfobZSfMJjU5eaDOjiz8W+5XQrkvfD2B/eTBdOTrYaSVaMdivlldkrVxMw==
+typed-subjects@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/typed-subjects/-/typed-subjects-1.0.3.tgz#b736d671240b6fa7a5ebc5d6090952427f69c28f"
+  integrity sha512-yefGiyNBsf6XjkeaNT72EMDekGWNEu8WxaSNsFvVivAFMJPztfFTte+pnz4XlzIbhsHGT2csrrFCQ508d/8IZA==
   dependencies:
+    callable-instance "^2.0.0"
+    loglevel "^1.7.1"
     nats "^2.0.0-215"
     p-queue "^6.6.2"
 

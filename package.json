@@ -40,7 +40,7 @@
     "nats": "^2.0.0-215",
     "p-queue": "^6.6.2",
     "raw-body": "^2.4.1",
-    "typed-subjects": "^1.0.2",
+    "typed-subjects": "^1.0.3",
     "ws": "^7.4.0"
   },
   "optionalDependencies": {
