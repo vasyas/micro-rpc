@@ -59,7 +59,9 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
 
   validateConfig(providedProps, config)
 
-  const natsConnection = await connect(config.nats)
+  const natsConnection = await connect(
+    config.nats ? {...config.nats, name: config.serverId} : {name: config.serverId}
+  )
   await connectLoggingService(config.serverId, natsConnection)
 
   log.info("Connected to NATS, Client ID " + natsConnection.info?.client_id)
