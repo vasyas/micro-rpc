@@ -56,8 +56,8 @@ export function globalCall(duration: number, error: boolean, prefix: string) {
 export function monitorWorkerQueue() {
   return {
     queue: (name, stats: QueueStats) => {
-      metric(`queue.${name}.queued`, stats.queued)
-      metric(`queue.${name}.running`, stats.running)
+      metric(`queue.${name}.queued`, stats.queued, "Count")
+      metric(`queue.${name}.running`, stats.running, "Count")
     },
   }
 }
