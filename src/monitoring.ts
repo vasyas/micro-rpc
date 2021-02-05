@@ -7,7 +7,7 @@ let cwbMetrics
 
 export type Unit = "Seconds" | "Milliseconds" | "Count"
 
-export function metric(name, value, unit: Unit = null) {
+export function metric(name, value, unit: Unit) {
   if (!cwbMetrics) return
 
   // console.log("metric", {name, value, unit, nodeId})
@@ -17,7 +17,7 @@ export function metric(name, value, unit: Unit = null) {
   })
 }
 
-export function globalMetric(name, value, unit: Unit = null) {
+export function globalMetric(name, value, unit: Unit) {
   if (!cwbMetrics) return
 
   cwbMetrics.stat(name, value, unit)
