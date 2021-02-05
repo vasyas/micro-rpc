@@ -1,3 +1,4 @@
+import {QueueStats} from "typed-subjects"
 import {log} from "./logger"
 
 const CloudWatchBuddy = require("cloudwatch-buddy")
@@ -50,6 +51,15 @@ export function globalCall(duration: number, error: boolean, prefix: string) {
   globalMetric(prefix + ".count", 1, "Count")
   globalMetric(prefix + ".duration", duration, "Milliseconds")
   if (error) globalMetric(prefix + ".error", 1, "Count")
+}
+
+export function monitorWorkerQueue() {
+  return {
+    queue: (name, stats: QueueStats) => {
+      metric(`queue.${name}.queued`, stats.queued)
+      metric(`queue.${name}.running`, stats.running)
+    },
+  }
 }
 
 export function meterRequest(group, saveMetrics = call) {

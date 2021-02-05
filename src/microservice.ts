@@ -12,7 +12,7 @@ import Koa from "koa"
 import koaMount from "koa-mount"
 import loglevel from "loglevel"
 import {connect, NatsConnection} from "nats"
-import {drainWorkerQueues, setWorkerQueueListeners} from "typed-subjects"
+import {drainWorkerQueues, setWorkerQueuesListener} from "typed-subjects"
 import * as UUID from "uuid-js"
 import {loadConfig, MsConfig} from "./config"
 import {initDatabase, transactional} from "./db"
@@ -66,10 +66,7 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
 
   log.info("Connected to NATS, Client ID " + natsConnection.info?.client_id)
 
-  setWorkerQueueListeners(
-    (size: number) => metric("workerQueues", size, "Count"),
-    (queueName, queueSize) => metric("workerQueue.size", queueSize)
-  )
+  setWorkerQueuesListener((size) => metric("workerQueues", size, "Count"))
 
   process.on("SIGINT", async () => {
     log.info("Got SIGINT, doing graceful shutdown")

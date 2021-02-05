@@ -43,7 +43,7 @@
     "ws": "^7.4.0"
   },
   "peerDependencies": {
-    "typed-subjects": "^1.0.5"
+    "typed-subjects": "^1.0.7"
   },
   "optionalDependencies": {
     "@push-rpc/openapi": "^1.2.6"
