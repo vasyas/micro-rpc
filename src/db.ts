@@ -1,14 +1,14 @@
-import {enableTrace, Sql, SqlBuilder} from "interpolated-sql"
+import {Sql, SqlBuilder} from "interpolated-sql"
 import {log} from "./logger"
 import * as monitoring from "./monitoring"
 
 const mysql = require("mysql2/promise")
 
 let pool
+let traceDbConnections = false
 
-export async function initDatabase(config: DbConfig, trace = false) {
-  enableTrace(trace)
-
+export async function initDatabase(config: DbConfig, _traceDbConnections = false) {
+  traceDbConnections = _traceDbConnections
   pool = await mysql.createPool({...config, decimalNumbers: true, multipleStatements: true})
 
   // setup monitoring
@@ -42,6 +42,8 @@ export async function transactional(ctx, next, params = undefined) {
       clearTimeout(transactionTimer)
     }
 
+    connection.stack = null
+
     releaseConnection(connection)
     connection = null
   }
@@ -52,6 +54,10 @@ export async function transactional(ctx, next, params = undefined) {
     }
 
     connection = await getConnection()
+
+    if (traceDbConnections) {
+      connection.connection.stack = new Error().stack
+    }
 
     transactionTimer = setTimeout(async () => {
       if (connection) {
@@ -201,4 +207,27 @@ export interface DbConfig {
 export function stopDb() {
   pool && pool.end()
   pool = null
+}
+
+export function dumpPoolStats() {
+  const impl = pool.pool
+
+  const total = impl._allConnections.length
+  const free = impl._freeConnections.length
+  const used = total - free
+
+  console.log("DB Pool stats", {
+    total,
+    used,
+    free,
+  })
+
+  const runningConn = impl._connectionQueue
+
+  console.log(`Tracing ${runningConn.length} used connections`)
+
+  for (let i = 0; i < runningConn.length; i++) {
+    console.log(`-- Connection ${i}`)
+    console.log(runningConn.get(i).stack)
+  }
 }

@@ -15,7 +15,7 @@ import {connect, NatsConnection} from "nats"
 import {drainWorkerQueues, setWorkerQueuesListener} from "typed-subjects"
 import * as UUID from "uuid-js"
 import {loadConfig, MsConfig} from "./config"
-import {initDatabase, transactional} from "./db"
+import {dumpPoolStats, initDatabase, transactional} from "./db"
 import {getDefaultProps} from "./defaults"
 import {documentation} from "./documentApi"
 import {connectLoggingService, log} from "./logger"
@@ -80,7 +80,11 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
   })
 
   if (config.db) {
-    await initDatabase(config.db)
+    await initDatabase(config.db, props.traceDbConnections)
+
+    if (props.traceDbConnections) {
+      process.on("SIGUSR2", dumpPoolStats)
+    }
   }
 
   initMonitoring(config.aws, config.serverId, props.metricNamespace)
