@@ -66,7 +66,7 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
 
   log.info("Connected to NATS, Client ID " + natsConnection.info?.client_id)
 
-  setWorkerQueuesListener((size) => metric("workerQueues", size, "Count"))
+  // setWorkerQueuesListener((size) => metric("workerQueues", size, "Count"))
 
   process.on("SIGINT", async () => {
     log.info("Got SIGINT, doing graceful shutdown")
