@@ -9,7 +9,7 @@ type WebSocketRoutes = {
 }
 
 export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
-  name: string
+  role: string
   services?: Impl
   rpcServerOptions?:
     | Partial<RpcServerOptions>

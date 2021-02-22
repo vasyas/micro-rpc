@@ -16,7 +16,7 @@ export function documentation<Config extends MsConfig, Itf, Impl extends Itf = I
 
   app.use(async (ctx, next) => {
     if (ctx.request.path == "/" || ctx.request.path == "index.html") {
-      ctx.body = index(props.name)
+      ctx.body = index(props.role)
       ctx.type = "text/html"
       return
     }
@@ -44,12 +44,12 @@ async function createApiYaml<Config extends MsConfig, Itf, Impl extends Itf = It
   const template = {
     openapi: "3.0.0",
     info: {
-      title: `${props.name} service`,
+      title: `${props.role} service`,
       version: "1.0.0",
     },
     servers: [
       {
-        url: `${baseUrl}/api/${props.name}`,
+        url: `${baseUrl}/api/${props.role}`,
         description: "Server",
       },
     ],

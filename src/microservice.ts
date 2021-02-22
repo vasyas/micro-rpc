@@ -34,7 +34,7 @@ export type MsSetup<Config extends MsConfig, Impl> = {
 export async function startMicroService<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
   providedProps: MsProps<Config, Itf, Impl>
 ): Promise<MsSetup<Config, Impl>> {
-  console.log(`Starting server '${providedProps.name}'`)
+  console.log(`Starting server '${providedProps.role}'`)
 
   const props = {
     ...getDefaultProps(providedProps),
@@ -102,12 +102,12 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
       : ""
 
     log.info(
-      `Server '${props.name}' started at http://localhost:${config.ports.http}${props.paths.http}, ws://localhost:${config.ports.http}${props.paths.ws}${doc}`
+      `Server '${props.role}' started at http://localhost:${config.ports.http}${props.paths.http}, ws://localhost:${config.ports.http}${props.paths.ws}${doc}`
     )
 
     return {config, services, koaApp, natsConnection}
   } else {
-    log.info(`Server '${props.name}' started`)
+    log.info(`Server '${props.role}' started`)
 
     return {config, natsConnection}
   }

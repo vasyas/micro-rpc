@@ -14,9 +14,9 @@ export function getDefaultProps<Config extends MsConfig, Itf, Impl extends Itf =
     websocketServers: {},
     metricNamespace: "Service",
     paths: {
-      doc: `/api/${props.name}/docs/`,
-      http: `/api/${props.name}`,
-      ws: `/rpc/${props.name}`,
+      doc: `/api/${props.role}/docs/`,
+      http: `/api/${props.role}`,
+      ws: `/rpc/${props.role}`,
     },
     createKoaApp,
     createServiceContext,

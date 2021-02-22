@@ -7,7 +7,7 @@ class HelloServiceImpl {
 }
 
 startMicroService({
-  name: "helloService",
+  role: "helloService",
   services: {
     hello: new HelloServiceImpl(),
   },
