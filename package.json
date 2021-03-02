@@ -1,6 +1,6 @@
 {
   "name": "@push-rpc/micro",
-  "version": "1.0.14",
+  "version": "1.0.16",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -43,7 +43,7 @@
     "ws": "^7.4.0"
   },
   "peerDependencies": {
-    "typed-subjects": "^1.0.7"
+    "typed-subjects": "^1.0.11"
   },
   "optionalDependencies": {
     "@push-rpc/openapi": "^1.2.6"

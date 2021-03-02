@@ -1236,10 +1236,10 @@ type-is@^1.6.16:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typed-subjects@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/typed-subjects/-/typed-subjects-1.0.7.tgz#e82152d16fbdbefb822a2e52fbbe1f53e0ba2c57"
-  integrity sha512-AkThM2uuYahu4c+2vgPLIkzA4QEWG/0IsnAiHfriMzjO65UR593zHKlmsYQU0QTbeG9PZTbpGJE3MAm8g8GS0g==
+typed-subjects@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/typed-subjects/-/typed-subjects-1.0.11.tgz#a25926a4c0ad1f354a895fcdab92fcfea6cf2153"
+  integrity sha512-usDq75hecFboFDsGzDBv751gKip1K7T3xm2O2f9RAr+cRBwp+YqROlEsVV5EJihwlbS+6rkb7203O/GfevFNGA==
   dependencies:
     callable-instance "^2.0.0"
     loglevel "^1.7.1"
