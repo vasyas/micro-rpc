@@ -29,7 +29,11 @@ export async function closeDatabase() {
 }
 
 // after this timeout transaction will be returned back to the pool
-const TRANSACTION_TIMEOUT = 15 * 1000
+let transactionTimeout = 15 * 1000
+
+export function setTransactionTimeout(millis: number) {
+  transactionTimeout = millis
+}
 
 export async function transactional(ctx, next, params = undefined) {
   let connection,
@@ -73,7 +77,7 @@ export async function transactional(ctx, next, params = undefined) {
           closeConnection()
         }
       }
-    }, TRANSACTION_TIMEOUT)
+    }, transactionTimeout)
   }
 
   try {
