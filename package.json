@@ -26,9 +26,6 @@
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@push-rpc/core": "^1.2.6",
-    "@push-rpc/http": "^1.2.6",
-    "@push-rpc/websocket": "^1.2.6",
     "cloudwatch-buddy": "vasyas/cloudwatch-buddy",
     "inflation": "^2.0.0",
     "interpolated-sql": "^1.0.7",
@@ -43,7 +40,10 @@
     "ws": "^7.4.0"
   },
   "peerDependencies": {
-    "typed-subjects": "^1.0.11"
+    "typed-subjects": "^1.0.11",
+    "@push-rpc/core": "^1.2.6",
+    "@push-rpc/http": "^1.2.6",
+    "@push-rpc/websocket": "^1.2.6"
   },
   "optionalDependencies": {
     "@push-rpc/openapi": "^1.2.6"
