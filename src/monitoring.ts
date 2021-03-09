@@ -1,4 +1,4 @@
-import {QueueStats} from "typed-subjects"
+import {FilteringSubject, QueueStats} from "typed-subjects"
 import {log} from "./logger"
 
 const CloudWatchBuddy = require("cloudwatch-buddy")
@@ -77,6 +77,33 @@ export function meterRequest(group, saveMetrics = call) {
       const duration = new Date().getTime() - beginTime
 
       saveMetrics(duration, error, group)
+    }
+  }
+}
+
+export type ServerRps = {serverId: string; rps: number}
+
+export function measureServerRps(
+  subject: FilteringSubject<ServerRps>,
+  serverId: string,
+  period: number = 5 * 1000
+) {
+  let served = 0
+
+  setInterval(function () {
+    try {
+      subject.publish({serverId, rps: (served * 1000) / period})
+      served = 0
+    } catch (e) {
+      log.error("Failed to send RPS metrics", e)
+    }
+  }, period)
+
+  return async (ctx, next, params) => {
+    try {
+      return await next(params)
+    } finally {
+      served++
     }
   }
 }
