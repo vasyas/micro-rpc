@@ -76,6 +76,8 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
 
     await drainWorkerQueues()
 
+    await props.shutdown()
+
     process.exit(0)
   })
 

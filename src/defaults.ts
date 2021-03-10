@@ -21,6 +21,7 @@ export function getDefaultProps<Config extends MsConfig, Itf, Impl extends Itf =
     createKoaApp,
     createServiceContext,
     getHttpRemoteId,
+    shutdown: async () => {},
   }
 }
 
