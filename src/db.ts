@@ -206,6 +206,8 @@ export interface DbConfig {
   password: string
   database: string
   port?: number
+  connectionLimit?: number
+  queueLimit?: number
 }
 
 export function stopDb() {

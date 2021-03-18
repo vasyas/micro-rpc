@@ -23,6 +23,7 @@ import {initMonitoring, meterRequest, metric} from "./monitoring"
 import {PingServiceImpl} from "./PingServiceImpl"
 import {MsProps} from "./props"
 import {websocketRouter} from "./serverUtils"
+import {deepOverride, DeepPartial} from "./utils"
 
 export type MsSetup<Config extends MsConfig, Impl> = {
   config: Config
@@ -36,10 +37,11 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
 ): Promise<MsSetup<Config, Impl>> {
   console.log(`Starting server '${providedProps.role}'`)
 
-  const props = {
-    ...getDefaultProps(providedProps),
-    ...providedProps,
-  }
+  const props = deepOverride(getDefaultProps(providedProps), providedProps) as MsProps<
+    Config,
+    Itf,
+    Impl
+  >
 
   setLogger({
     info: (...params) => log.info(...params),
@@ -52,12 +54,8 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
 
   configureLoglevel()
 
-  const config: Config = {
-    ...props.config,
-    ...(await loadConfig()),
-  }
-
-  validateConfig(providedProps, config)
+  const partialConfig = deepOverride(props.config, await loadConfig())
+  const config = validateConfig(providedProps, partialConfig)
 
   const natsConnection = await connect(
     config.nats ? {...config.nats, name: config.serverId} : {name: config.serverId}
@@ -198,7 +196,7 @@ async function publishApi<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
   return app
 }
 
-function validateConfig(props, config: MsConfig) {
+function validateConfig<Config extends MsConfig>(props, config: DeepPartial<Config>): Config {
   if (!!props.services && !config.ports?.http) {
     throw new Error("Config property 'ports.http' is required to publish Push-RPC services")
   }
@@ -218,6 +216,8 @@ function validateConfig(props, config: MsConfig) {
   if (!config.serverId) {
     throw new Error("Required config property 'serverId' is missing")
   }
+
+  return config as Config
 }
 
 async function createHttpConnectionContext<Config extends MsConfig, Itf, Impl extends Itf = Itf>(

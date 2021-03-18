@@ -1,5 +1,6 @@
 import * as fs from "fs"
 import {ConnectionOptions, NatsConnection} from "nats"
+import {DbConfig} from "./db"
 
 export interface MsConfig {
   serverId: string
@@ -7,13 +8,7 @@ export interface MsConfig {
   ports: {
     http: number
   } & Record<string, number>
-  db?: {
-    host: string
-    user: string
-    password: string
-    database: string
-    port?: number
-  }
+  db?: DbConfig
   aws?: {
     region: string
     credentials: {

@@ -4,10 +4,11 @@ import {log} from "./logger"
 import {MsProps} from "./props"
 import {bodyParser} from "./serverUtils"
 import {createServiceContext} from "./serviceContext"
+import {DeepPartial} from "./utils"
 
 export function getDefaultProps<Config extends MsConfig, Itf, Impl extends Itf = Itf>(
   props: MsProps<Config, Itf, Impl>
-): Partial<MsProps<Config, Itf, Impl>> {
+): DeepPartial<MsProps<Config, Itf, Impl>> {
   return {
     rpcServerOptions: {},
     config: {},

@@ -3,6 +3,7 @@ import {RpcServerOptions, Socket} from "@push-rpc/core"
 import WebSocket from "ws"
 import {MsConfig} from "./config"
 import {ServiceContext} from "./serviceContext"
+import {DeepPartial} from "./utils"
 
 type WebSocketRoutes = {
   [path: string]: WebSocket.Server
@@ -14,7 +15,7 @@ export type MsProps<Config extends MsConfig, Itf, Impl extends Itf> = {
   rpcServerOptions?:
     | Partial<RpcServerOptions>
     | ((config: Config) => Promise<Partial<RpcServerOptions>>)
-  config?: Partial<Config>
+  config?: DeepPartial<Config>
   websocketServers?: WebSocketRoutes | ((rpc: WebSocket.Server) => Promise<WebSocketRoutes>)
   documentApi?: {
     baseDir?: string // default to .
