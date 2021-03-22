@@ -23,7 +23,11 @@
     "@types/ws": "^7.4.0",
     "prettier": "^2.2.1",
     "ts-node": "^9.0.0",
-    "typescript": "^4.1.2"
+    "typescript": "^4.1.2",
+    "@push-rpc/core": "^1.2.6",
+    "@push-rpc/http": "^1.2.6",
+    "@push-rpc/websocket": "^1.2.6",
+    "typed-subjects": "^1.0.11"
   },
   "dependencies": {
     "cloudwatch-buddy": "vasyas/cloudwatch-buddy",

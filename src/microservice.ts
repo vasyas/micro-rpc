@@ -37,11 +37,10 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
 ): Promise<MsSetup<Config, Impl>> {
   console.log(`Starting server '${providedProps.role}'`)
 
-  const props = deepOverride(getDefaultProps(providedProps), providedProps) as MsProps<
-    Config,
-    Itf,
-    Impl
-  >
+  const props = {
+    ...getDefaultProps(providedProps),
+    ...providedProps,
+  }
 
   setLogger({
     info: (...params) => log.info(...params),
@@ -54,8 +53,8 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
 
   configureLoglevel()
 
-  const partialConfig = deepOverride(props.config, await loadConfig())
-  const config = validateConfig(providedProps, partialConfig)
+  const partialConfig: DeepPartial<Config> = deepOverride(props.config, await loadConfig())
+  const config: Config = validateConfig(providedProps, partialConfig)
 
   const natsConnection = await connect(
     config.nats ? {...config.nats, name: config.serverId} : {name: config.serverId}

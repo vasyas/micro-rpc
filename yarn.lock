@@ -38,12 +38,19 @@
   dependencies:
     uuid-js "^0.7.5"
 
-"@push-rpc/http@^1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@push-rpc/http/-/http-1.2.6.tgz#e6609d0a96c90fad9c2d17dce08a6a66d3a23b0b"
-  integrity sha512-QSKS4FS2vqpUr/si0ITdGobaMTd5ThNCHIOz8fmAG899lWQqxGLE1QWXFLP9hHKXLRCPBKoAwQmN0IppHxJCkg==
+"@push-rpc/core@^1.2.9":
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/@push-rpc/core/-/core-1.2.9.tgz#bba413b22ed9dedb915a5b4dd9ee345f44fa00f1"
+  integrity sha512-z1SsRu+NRG1GNXsEGMxoMzyH9WFWLIgoMBwa3phFh3i0CatFFM/+HMNHr8cw6S6oH3TVNUzG2VWgUln6Sz5gpA==
   dependencies:
-    "@push-rpc/core" "^1.2.6"
+    uuid-js "^0.7.5"
+
+"@push-rpc/http@^1.2.6":
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/@push-rpc/http/-/http-1.2.9.tgz#cd84a97be382af79a83bbdea12a0364a48e2b06e"
+  integrity sha512-4A4M7LSFUWXCrZqj1bXSIOHVNFedjT8RCiF3nPMusF8PhL/jBj8eXrRyXNnOBJdDcX0eAcdMxYbLFmrG6J5MBw==
+  dependencies:
+    "@push-rpc/core" "^1.2.9"
     uuid-js "^0.7.5"
 
 "@push-rpc/openapi@^1.2.6":
@@ -59,11 +66,11 @@
     ts-morph "^9.0.0"
 
 "@push-rpc/websocket@^1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@push-rpc/websocket/-/websocket-1.2.6.tgz#024e65a0e7411733c58367fdc519693a30b60d6d"
-  integrity sha512-DiiWhwmEngKNtWwuTCU2wdIhXiqSGdGXSG1Iutzobed6nneg9OuxP6FYYfoWKsJ6ZLhOHWA3abDlNQht/2AAEw==
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/@push-rpc/websocket/-/websocket-1.2.9.tgz#73bf1301df2efdb31a769c97bd3a9624486bea2c"
+  integrity sha512-SQQMImwcYtOD4CoNkJIApr2nkHPSlw6Zt2gs9IjWWawXcItw7OAfwrWBNh3c9mPpNgAp3bMkO81ALDZFEwk/Hg==
   dependencies:
-    "@push-rpc/core" "^1.2.6"
+    "@push-rpc/core" "^1.2.9"
     ws "^7.2.0"
 
 "@ts-morph/common@~0.7.0":
@@ -1237,9 +1244,9 @@ type-is@^1.6.16:
     mime-types "~2.1.24"
 
 typed-subjects@^1.0.11:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/typed-subjects/-/typed-subjects-1.0.11.tgz#a25926a4c0ad1f354a895fcdab92fcfea6cf2153"
-  integrity sha512-usDq75hecFboFDsGzDBv751gKip1K7T3xm2O2f9RAr+cRBwp+YqROlEsVV5EJihwlbS+6rkb7203O/GfevFNGA==
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/typed-subjects/-/typed-subjects-1.0.13.tgz#913ee64212a61b84e2655cd5ddccdfe0305b207f"
+  integrity sha512-A+yHFxBPYsr1pO1xMOC3UUq9J2RHT8TnXwGVpj1DMUwhaBcQHlgwazPLc1P3wLvn0dYV7/zc17bfcjjp6MFHdg==
   dependencies:
     callable-instance "^2.0.0"
     loglevel "^1.7.1"
@@ -1302,7 +1309,12 @@ wordwrapjs@^3.0.0:
     reduce-flatten "^1.0.1"
     typical "^2.6.1"
 
-ws@^7.2.0, ws@^7.4.0:
+ws@^7.2.0:
+  version "7.4.4"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.4.tgz#383bc9742cb202292c9077ceab6f6047b17f2d59"
+  integrity sha512-Qm8k8ojNQIMx7S+Zp8u/uHOx7Qazv3Yv4q68MiWWWOJhiwG5W3x7iqmRtJo8xxrciZUY4vRxUTJCKuRnF28ZZw==
+
+ws@^7.4.0:
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.0.tgz#a5dd76a24197940d4a8bb9e0e152bb4503764da7"
   integrity sha512-kyFwXuV/5ymf+IXhS6f0+eAFvydbaBW3zjpT6hUdAh/hbVjTIB5EHBGi0bPoCLSK2wcuz3BrEkB9LrYv1Nm4NQ==
