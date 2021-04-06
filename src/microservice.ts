@@ -12,7 +12,7 @@ import Koa from "koa"
 import koaMount from "koa-mount"
 import loglevel from "loglevel"
 import {connect, NatsConnection} from "nats"
-import {drainWorkerQueues, setWorkerQueuesListener} from "typed-subjects"
+import {drainWorkerQueues} from "typed-subjects"
 import * as UUID from "uuid-js"
 import {loadConfig, MsConfig} from "./config"
 import {dumpPoolStats, initDatabase, transactional} from "./db"
@@ -56,22 +56,25 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
   const partialConfig: DeepPartial<Config> = deepOverride(props.config, await loadConfig())
   const config: Config = validateConfig(providedProps, partialConfig)
 
-  const natsConnection = await connect(
-    config.nats ? {...config.nats, name: config.serverId} : {name: config.serverId}
-  )
-  await connectLoggingService(config.serverId, natsConnection)
+  const natsConnection = config.nats
+    ? await connect(config.nats ? {...config.nats, name: config.serverId} : {name: config.serverId})
+    : null
 
-  log.info("Connected to NATS, Client ID " + natsConnection.info?.client_id)
+  if (natsConnection) {
+    log.info("Connected to NATS, Client ID " + natsConnection.info?.client_id)
 
-  // setWorkerQueuesListener((size) => metric("workerQueues", size, "Count"))
+    await connectLoggingService(config.serverId, natsConnection)
+  }
 
   process.on("SIGINT", async () => {
     log.info("Got SIGINT, doing graceful shutdown")
 
-    log.info("Shutdown: drain message queue")
-    await natsConnection.drain()
+    if (natsConnection) {
+      log.info("Shutdown: drain message queue")
+      await natsConnection.drain()
 
-    await drainWorkerQueues()
+      await drainWorkerQueues()
+    }
 
     await props.shutdown()
 
