@@ -69,14 +69,13 @@ export async function startMicroService<Config extends MsConfig, Itf, Impl exten
   process.on("SIGINT", async () => {
     log.info("Got SIGINT, doing graceful shutdown")
 
+    await props.shutdown()
+
     if (natsConnection) {
       log.info("Shutdown: drain message queue")
       await natsConnection.drain()
-
       await drainWorkerQueues()
     }
-
-    await props.shutdown()
 
     process.exit(0)
   })
