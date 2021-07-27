@@ -10,7 +10,8 @@ export function deepOverride<T>(
     if (
       typeof source[property] == "object" &&
       source[property] != null &&
-      !(source[property] instanceof Date)
+      !(source[property] instanceof Date) &&
+      !Array.isArray(source[property])
     ) {
       destination[property] = destination[property] || {}
       deepOverride(destination[property], source[property])
